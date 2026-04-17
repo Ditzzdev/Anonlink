@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonLink | Stealth Inspector</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #030303;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f8fafc;
+            --text-mute: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            filter: blur(140px);
+            opacity: 0.1;
+            z-index: -1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--glass);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 40px;
+            animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes appear {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-mute);
+            font-size: 0.9rem;
+        }
+
+        /* Input Area - Responsif */
+        .input-group {
+            display: flex;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 8px;
+            gap: 12px;
+            transition: 0.3s ease;
+            width: 100%;
+        }
+
+        .input-group:focus-within {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+        }
+
+        input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            padding: 12px 15px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-main {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0 28px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 48px;
+            white-space: nowrap;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Info & Viewer */
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 5px 10px;
+            font-size: 0.7rem;
+            color: var(--text-mute);
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .output-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .output-nav {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #code {
+            height: 320px;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        #code::-webkit-scrollbar { width: 4px; }
+        #code::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-mute);
+            padding: 6px 15px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* Perbaikan Mobile */
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+                background: transparent;
+                border: none;
+                padding: 0;
+                gap: 10px;
+            }
+
+            input {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                width: 100%;
+            }
+
+            .btn-main {
+                width: 100%;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            header h1 { font-size: 1.6rem; }
+        }
+
+        /* Modal & Loader */
+        #ovr { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 100; }
+        #alt { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; background: #111; border: 1px solid var(--border); padding: 30px; border-radius: 24px; z-index: 101; text-align: center; }
+        .dot-loader { display: none; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="blob"></div>
+
+    <div id="ovr" onclick="cls()"></div>
+    <div id="alt">
+        <p id="msg" style="margin-bottom: 25px; font-size: 0.9rem; line-height: 1.5;"></p>
+        <button class="btn-main" style="width: 100%; height: 45px;" onclick="cls()">MENGALAMI</button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>AnonLink</h1>
+            <p>X-Ray digital untuk memeriksa URL secara aman.</p>
+        </header>
+
+        <div class="input-group">
+            <input type="text" id="url" placeholder="Paste link mencurigakan di sini...">
+            <button class="btn-main" onclick="audit()">
+                <div class="dot-loader" id="ldr"></div>
+                <span id="txt">Analisis</span>
+            </button>
+        </div>
+
+        <div class="info-bar">
+            <span id="st">Status: Standby</span>
+            <span id="sz">0.00 KB</span>
+        </div>
+
+        <div class="output-box">
+            <div class="output-nav">
+                <span style="font-size: 0.6rem; font-weight: 700; color: var(--text-mute);">RAW_STREAM_DATA</span>
+                <button class="btn-secondary" onclick="cp()">Salin</button>
+            </div>
+            <div id="code">// Masukkan URL untuk membedah source code...</div>
+        </div>
+    </div>
+
+    <script>
+        function shw(t) {
+            document.getElementById('msg').innerText = t;
+            document.getElementById('ovr').style.display = 'block';
+            document.getElementById('alt').style.display = 'block';
+        }
+
+        function cls() {
+            document.getElementById('ovr').style.display = 'none';
+            document.getElementById('alt').style.display = 'none';
+        }
+
+        async function audit() {
+            const val = document.getElementById('url').value.trim();
+            const out = document.getElementById('code');
+            const st = document.getElementById('st');
+            const sz = document.getElementById('sz');
+            const ldr = document.getElementById('ldr');
+            const txt = document.getElementById('txt');
+
+            if (!val) { shw("URL kosong. Masukkan alamat website untuk dianalisis."); return; }
+
+            ldr.style.display = "block";
+            txt.style.display = "none";
+            st.innerText = "Sourcing via Proxy...";
+            out.textContent = "Mengambil data...";
+
+            try {
+                const api = `https://api.allorigins.win/get?url=${encodeURIComponent(val)}`;
+                const res = await fetch(api);
+                const json = await res.json();
+                
+                if (!json.contents) throw new Error();
+
+                st.innerText = "Status: Secure Access";
+                st.style.color = "var(--primary)";
+                out.textContent = json.contents;
+                sz.innerText = (new Blob([json.contents]).size / 1024).toFixed(2) + " KB";
+
+            } catch (e) {
+                st.innerText = "Status: Error";
+                out.textContent = "Gagal mengambil data. Website target mungkin memblokir akses atau URL salah.";
+                shw("Terjadi gangguan koneksi atau proteksi server pada website target.");
+            } finally {
+                ldr.style.display = "none";
+                txt.style.display = "block";
+            }
+        }
+
+        function cp() {
+            const c = document.getElementById('code').textContent;
+            if (c.includes("//") || c.includes("Gagal")) return;
+            navigator.clipboard.writeText(c).then(() => {
+                const b = document.querySelector('.btn-secondary');
+                b.innerText = "Tersalin!";
+                setTimeout(() => b.innerText = "Salin", 1500);
+            });
+        }
+    </script>
+</body>
+</html>
